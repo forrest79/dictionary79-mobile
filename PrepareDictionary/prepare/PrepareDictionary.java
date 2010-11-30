@@ -3,6 +3,7 @@ package prepare;
 import java.io.*;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.SortedMap;
@@ -38,6 +39,8 @@ class PrepareDictionary {
 	 */
 	public static void main (String[] args) throws IOException {
 		DIRECTORY_SEPARATOR = System.getProperty("file.separator");
+
+		Locale.setDefault(new Locale("cs_CZ"));
 
 		// Dictinonary input filename
 		String dictionaryInput = "slovnik_data_uft8.txt";
@@ -159,7 +162,7 @@ class PrepareDictionary {
 						if (wordsCount > 0) {
 							dataEng.close();
 						}
-						indexEng.writeUTF(word);
+						indexEng.writeUTF(word.toLowerCase());
 						indexEng.writeShort(fileIndex);
 						dataEng = new DataOutputStream(new FileOutputStream("data" + DIRECTORY_SEPARATOR + "eng" + fileIndex++ + ".dat"));
 					}
@@ -198,7 +201,7 @@ class PrepareDictionary {
 						if (wordsCount > 0) {
 							dataCze.close();
 						}
-						indexCze.writeUTF(word);
+						indexCze.writeUTF(word.toLowerCase());
 						indexCze.writeShort(fileIndex);
 						dataCze = new DataOutputStream(new FileOutputStream("data" + DIRECTORY_SEPARATOR + "cze" + fileIndex++ + ".dat"));
 					}

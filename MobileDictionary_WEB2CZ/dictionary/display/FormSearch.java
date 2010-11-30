@@ -49,20 +49,22 @@ public final class FormSearch extends Form implements CommandListener {
 	}
 
 	public void commandAction(Command c, Displayable d) {
-		if(c == cmdExit) {
+		if (c == cmdExit) {
 			dictionary.exit();
-		} else if(c == cmdLang) {
+		} else if (c == cmdLang) {
 			dictionary.showLang();
-		} else if(c == cmdAbout) {
+		} else if (c == cmdAbout) {
 			dictionary.showAbout();
-		} else if(c == cmdSearch) {
-			if(txtWord.getString().length() > 1) {
+		} else if (c == cmdSearch) {
+			if (txtWord.getString().length() > 1) {
 				addCommand(cmdResults);
 				dictionary.showResults();
 				dictionary.getSearch().search(txtWord.getString(), chgDirection.getSelectedIndex());
 			} else {
 				dictionary.alert(dictionary.translate("Hledání ve slovníku"), dictionary.translate("Hledaný výraz musí obsahovat alespoň dva znaky."), AlertType.WARNING);
 			}
+		} else if (c == cmdResults) {
+			dictionary.showResults();
 		}
 	}
 }

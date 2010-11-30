@@ -45,8 +45,8 @@ public final class CanvasResults extends Canvas implements CommandListener {
 
 		try {
 			iLogo = Image.createImage("/logo.png");
-			iFlag[Search.DICTIONARY_CZE] = Image.createImage("/cze.png");
-			iFlag[Search.DICTIONARY_ENG] = Image.createImage("/eng.png");
+			//iFlag[Search.DICTIONARY_CZE] = Image.createImage("/cze.png");
+			//iFlag[Search.DICTIONARY_ENG] = Image.createImage("/eng.png");
 			iSearching[0] = Image.createImage("/searching1.png");
 			iSearching[1] = Image.createImage("/searching2.png");
 		} catch(Exception e) {}
@@ -70,7 +70,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 
 		if(dictionary.getSearch().searching_run) search(g);
 
-		if(dictionary.getSearch().search_notice != Search.NOTICE_OK) notice(g, dictionary.getSearch().search_notice);
+		if(dictionary.getSearch().searchNotice != Search.NOTICE_OK) notice(g, dictionary.getSearch().searchNotice);
 	}
 
 	private void header(Graphics g) {
@@ -205,6 +205,10 @@ public final class CanvasResults extends Canvas implements CommandListener {
 		height = height + 1;
 
 		if(draw_end_line) g.drawLine(0, height, (getWidth() - SCROLLBAR_WIDTH), height);
+	}
+
+	public void print() {
+		System.out.println("xxx");
 	}
 
 	private int heightWord(String original, String translate) {
@@ -366,6 +370,9 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	}
 
 	public void commandAction(Command c, Displayable d) {
+		if (c == cmdNewSearch) {
+			dictionary.showSearch();
+		}
 	}
 
 	private class DownKey extends TimerTask {
