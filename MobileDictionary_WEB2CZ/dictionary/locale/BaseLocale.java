@@ -5,7 +5,7 @@ import java.util.Hashtable;
 /**
  * Base locale class.
  *
- * @author Jakub Trmota
+ * @author Jakub Trmota | Forrest79
  */
 abstract class BaseLocale {
 	/**

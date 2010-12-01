@@ -2,396 +2,569 @@ package dictionary.display;
 
 import dictionary.Dictionary;
 import dictionary.Search;
+import dictionary.animation.Working;
+import java.io.IOException;
 import javax.microedition.lcdui.*;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Vector;
 
+/**
+ * Canvas with results.
+ *
+ * @author Jakub Trmota | Forrest79
+ */
 public final class CanvasResults extends Canvas implements CommandListener {
+	/**
+	 * Flag image width.
+	 */
+	private static final int FLAG_WIDTH = 16;
 
-	private Dictionary dictionary = null;
-
-	private Image iLogo = null;
-	private Image iFlag[] = new Image[2];
-	private Image iSearching[] = new Image[2];
-
-	private Timer timer_key = null;
-	private TimerTask task_key = null;
-
-	private static final int IFLAG_WIDTH = 18;
-	private static final int IFLAG_HEIGHT = 12;
+	/**
+	 * Header height.
+	 */
 	private static final int HEADER_HEIGHT = 20;
+
+	/**
+	 * Footer height.
+	 */
 	private static final int FOOTER_HEIGHT = 18;
+
+	/**
+	 * Scrollbar width.
+	 */
 	private static final int SCROLLBAR_WIDTH = 9;
 
-	private int FORM_HEIGHT = 0;
+	/**
+	 * Small scroll step.
+	 */
+	private static final int SCROLL_STEP = 5;
 
-	private Command cmdDictionarySearch = null;
+	/**
+	 * Vertical space between words.
+	 */
+	private static final int VERTICAL_SPACE = 2;
+
+	/**
+	 * Horizontal space between word and flag.
+	 */
+	private static final int HORIZONTAL_SPACE = 2;
+
+	/**
+	 * Margin after flag.
+	 */
+	private static final int FLAG_MARGIN = 5;
+
+	/**
+	 * Right margin.
+	 */
+	private static final int WIDTH_MARGIN = 10;
+
+	/**
+	 * Words seperator height.
+	 */
+	private static final int LINE_HEIGHT = 5;
+
+	/**
+	 * Dictionary midlet.
+	 */
+	private Dictionary dictionary = null;
+
+	/**
+	 * Czech and english flag.
+	 */
+	private Image flags[] = null;
+
+	/**
+	 * Timer for keys down and up.
+	 */
+	private Timer timerKey = null;
+
+	/**
+	 * Down key timer.
+	 */
+	private TimerTask downKey = null;
+
+	/**
+	 * Up key timer.
+	 */
+	private TimerTask upKey = null;
+
+	/**
+	 * Form height (without header and footer).
+	 */
+	private int formHeight = 0;
+
+	/**
+	 * Words height.
+	 */
+	private Vector heights = null;
+
+	/**
+	 * All words height.
+	 */
+	private int wordsAllHeight = 0;
+
+	/**
+	 * Words position (with scrollbar).
+	 */
+	private int wordsPosition = 0;
+
+	/**
+	 * Results words.
+	 */
+	private String words[] = null;
+
+	/**
+	 * Which word is original.
+	 */
+	private boolean originals[] = null;
+
+	/**
+	 * Working animation.
+	 */
+	private Working working = null;
+
+	/**
+	 * New search command.
+	 */
 	private Command cmdNewSearch = null;
-	private Command cmdInfo = null;
-	private Command cmdEnd = null;
 
-	public CanvasResults(Dictionary midlet) {
+	/**
+	 * Lang command.
+	 */
+	private Command cmdLang = null;
+
+	/**
+	 * About command.
+	 */
+	private Command cmdAbout = null;
+
+	/**
+	 * Exit command.
+	 */
+	private Command cmdExit = null;
+
+	/**
+	 * Result canvas initialization.
+	 * 
+	 * @param midlet
+	 * @throws IOException
+	 */
+	public CanvasResults(Dictionary midlet) throws IOException {
 		this.dictionary = midlet;
 		
-		cmdNewSearch = new Command("Nové", Command.SCREEN, 0);
-		cmdDictionarySearch = new Command("Hledat ve slovníku", Command.SCREEN, 1);
-		cmdInfo = new Command("Informace", Command.SCREEN, 2);
-		cmdEnd = new Command("Konec", Command.SCREEN, 3);
+		cmdNewSearch = new Command(dictionary.translate("Nové hledání"), Command.SCREEN, 0);
+		cmdLang = new Command(dictionary.translate("Jazyk"), Command.SCREEN, 1);
+		cmdAbout = new Command(dictionary.translate("O slovníku"), Command.SCREEN, 2);
+		cmdExit = new Command(dictionary.translate("Konec"), Command.SCREEN, 3);
 
 		this.addCommand(cmdNewSearch);
-		this.addCommand(cmdDictionarySearch);
-		this.addCommand(cmdInfo);
-		this.addCommand(cmdEnd);
+		this.addCommand(cmdLang);
+		this.addCommand(cmdAbout);
+		this.addCommand(cmdExit);
 
-		try {
-			iLogo = Image.createImage("/logo.png");
-			//iFlag[Search.DICTIONARY_CZE] = Image.createImage("/cze.png");
-			//iFlag[Search.DICTIONARY_ENG] = Image.createImage("/eng.png");
-			iSearching[0] = Image.createImage("/searching1.png");
-			iSearching[1] = Image.createImage("/searching2.png");
-		} catch(Exception e) {}
+		flags = new Image[2];
+		flags[Search.ENG_CZE] = Image.createImage("/resources/eng.png");
+		flags[Search.CZE_ENG] = Image.createImage("/resources/cze.png");
 
-		FORM_HEIGHT = getHeight() - HEADER_HEIGHT - FOOTER_HEIGHT;
+		formHeight = getHeight() - HEADER_HEIGHT - FOOTER_HEIGHT;
+
+		heights = new Vector();
+
+		this.working = new Working(this, getWidth() - Working.WIDTH - 5, (HEADER_HEIGHT - Working.HEIGHT) / 2);
+
+		downKey = new DownKey();
+		upKey = new UpKey();
+
+		words = new String[0];
+		originals = new boolean[0];
 	}
 
+	/**
+	 * Read results and paint all objects.
+	 *
+	 * @param g
+	 */
 	protected void paint(Graphics g) {
-		g.setColor(255, 255, 255);
-		g.fillRect(0, HEADER_HEIGHT, getWidth(), (getHeight() - FOOTER_HEIGHT));
-
 		readWords();
+		
+		paintWords(g);
 
-		drawWords(g);
+		paintHeader(g);
 
-		header(g);
+		paintFooter(g);
 
-		footer(g, String.valueOf(dictionary.getSearch().translate.size()));
-
-		scrollbar(g);
-
-		if(dictionary.getSearch().searching_run) search(g);
-
-		if(dictionary.getSearch().searchNotice != Search.NOTICE_OK) notice(g, dictionary.getSearch().searchNotice);
+		paintScrollbar(g);
 	}
 
-	private void header(Graphics g) {
+	/**
+	 * Paint header with working animation.
+	 * 
+	 * @param g
+	 */
+	private void paintHeader(Graphics g) {
 		g.setColor(0, 0, 0);
 		g.fillRect(0, 0, getWidth(), HEADER_HEIGHT);
-		//g.drawImage(iLogo, 6, 5, Graphics.TOP | Graphics.LEFT);
+
+		g.setColor(255, 255, 255);
+		g.setFont(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM));
+		g.drawString(dictionary.translate("Výsledky hledání"), 5, 2, Graphics.LEFT | Graphics.TOP);
+
+		if (working.isRunning()) {
+			working.draw(g);
+		}
 	}
 
-	private void footer(Graphics g, String count) {
+	/**
+	 * Paint footer with count of results.
+	 * 
+	 * @param g
+	 */
+	private void paintFooter(Graphics g) {
 		g.setColor(0, 0, 0);
 		g.fillRect(0, (getHeight() - FOOTER_HEIGHT), getWidth(), getHeight());
 
 		g.setFont(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_SMALL));
 		g.setColor(255, 255, 255);
-		g.drawString("Nalezeno překladů: " + count, (getWidth() - 5), (getHeight() - 2), Graphics.RIGHT | Graphics.BOTTOM);
+		g.drawString(dictionary.translate("Nalezeno překladů") + ": " + dictionary.getSearch().getResultsCount(), (getWidth() - 5), (getHeight() - 3), Graphics.RIGHT | Graphics.BOTTOM);
 	}
 
+	/**
+	 * Read results and compute their heights (only new).
+	 */
 	private void readWords() {
-		int x, height;
-
-		for(x = dictionary.getSearch().heights.size(); x < dictionary.getSearch().translate.size(); x++) {
-			height = heightWord(String.valueOf(dictionary.getSearch().original.elementAt(x)), String.valueOf(dictionary.getSearch().translate.elementAt(x)));
-
-			dictionary.getSearch().heights.addElement(new Integer(height));
-			dictionary.getSearch().words_height_all = dictionary.getSearch().words_height_all + height;
-		}
-	}
-
-	private void drawWords(Graphics g) {
-		int all_height = 0;
-		int actual_height = 0;
-		boolean draw_end_line = true;
-
-		int x;
-		for(x = 0; x < dictionary.getSearch().heights.size(); x++) {
-			actual_height = ((Integer) (dictionary.getSearch().heights.elementAt(x))).intValue();
-
-			if((((all_height + actual_height) >= dictionary.getSearch().words_position) && ((all_height + actual_height) <= (dictionary.getSearch().words_position + FORM_HEIGHT))) || ((all_height >= dictionary.getSearch().words_position) && ((all_height + actual_height) <= (dictionary.getSearch().words_position + FORM_HEIGHT))) || ((all_height <= (dictionary.getSearch().words_position + FORM_HEIGHT)) && (all_height > dictionary.getSearch().words_position))) {
-				if(((x + 1) == dictionary.getSearch().heights.size()) && (dictionary.getSearch().words_height_all >= FORM_HEIGHT)) draw_end_line = false;
-				drawWord(g, (all_height - dictionary.getSearch().words_position), draw_end_line, String.valueOf(dictionary.getSearch().original.elementAt(x)), String.valueOf(dictionary.getSearch().translate.elementAt(x)));
-			}
-
-			all_height = all_height + actual_height;
-		}
-	}
-
-	private void scrollbar(Graphics g) {
-		int MAX_HEIGHT = (FORM_HEIGHT - 2);
-		float fScrollbarHeight = (((new Integer(FORM_HEIGHT)).floatValue() / (new Integer(dictionary.getSearch().words_height_all)).floatValue()) * (new Integer(MAX_HEIGHT)).floatValue());
-		float fScrollbarPosition = (((new Integer(FORM_HEIGHT)).floatValue() / (new Integer(dictionary.getSearch().words_height_all)).floatValue()) * (new Integer(dictionary.getSearch().words_position)).floatValue());
-		int scrollbar_height = (new Float(fScrollbarHeight)).intValue();
-		int scrollbar_position = (new Float(fScrollbarPosition)).intValue();
-
-		if(scrollbar_height > MAX_HEIGHT) scrollbar_height = MAX_HEIGHT;
-		if((scrollbar_position + scrollbar_height) > MAX_HEIGHT) scrollbar_position = (MAX_HEIGHT - scrollbar_height);
-
-		g.setColor(0, 0, 0);
-
-		g.drawLine((getWidth() - SCROLLBAR_WIDTH), HEADER_HEIGHT, (getWidth() - SCROLLBAR_WIDTH), (getHeight() - FOOTER_HEIGHT));
-
-		g.fillRect((getWidth() - SCROLLBAR_WIDTH + 2), (HEADER_HEIGHT + 1 + scrollbar_position), (SCROLLBAR_WIDTH - 3), scrollbar_height);
-	}
-
-	private void drawWord(Graphics g, int position, boolean draw_end_line, String original, String translate) {
 		int height;
-		int height_line;
-		int width_line;
 
-		int lineChar = 0;
-		int x;
+		words = dictionary.getSearch().getResults();
+		originals = getOriginals(words);
 
-		height_line = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM).getHeight();
-		width_line = getWidth() - IFLAG_WIDTH - SCROLLBAR_WIDTH - 8;
+		for (int i = heights.size(); i < words.length; i++) {
+			height = getWordHeight(words[i], originals[i]);
+
+			heights.addElement(new Integer(height));
+			wordsAllHeight += height;
+		}
+	}
+
+	/**
+	 * Paint all words.
+	 * 
+	 * @param g
+	 */
+	private void paintWords(Graphics g) {
+		int allHeight = 0;
+		int actualHeight = 0;
+
+		g.setColor(255, 255, 255);
+		g.fillRect(0, HEADER_HEIGHT, getWidth(), (getHeight() - FOOTER_HEIGHT));
+
+		for (int i = 0; i < words.length - 1; i++) {
+			actualHeight = ((Integer) (heights.elementAt(i))).intValue();
+
+			if ((((allHeight + actualHeight) >= wordsPosition) && ((allHeight + actualHeight) <= (wordsPosition + formHeight)))
+					|| ((allHeight >= wordsPosition) && ((allHeight + actualHeight) <= (wordsPosition + formHeight)))
+					|| ((allHeight <= (wordsPosition + formHeight)) && (allHeight > wordsPosition))) {
+
+				paintWord(g, (allHeight - wordsPosition), words[i], originals[i]);
+			}
+
+			allHeight += actualHeight;
+		}
+	}
+
+	/**
+	 * Print one word.
+	 * 
+	 * @param g
+	 * @param position position on canvas
+	 * @param word word
+	 * @param original is original word
+	 */
+	private void paintWord(Graphics g, int position, String word, boolean original) {
+		position += HEADER_HEIGHT + VERTICAL_SPACE;
 
 		g.setColor(0, 0, 0);
 
-		height = HEADER_HEIGHT + position + 2;
-
-		//g.drawImage(iFlag[dictionary.getSearch().results_original], 2, (height + 2), Graphics.LEFT | Graphics.TOP);
-
-		g.setFont(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM));
-
-		if(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM).stringWidth(original) <= width_line) {
-			g.drawString(original, (IFLAG_WIDTH + 4), height, Graphics.LEFT | Graphics.TOP);
-
-			height = height + height_line;
-		} else {
-			lineChar = 0;
-
-			for(x = 0; x < original.length(); x++) {
-				if(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM).substringWidth(original, lineChar, (x - lineChar)) <= width_line) continue;
-				else {
-					g.drawSubstring(original, lineChar, (x - lineChar), (IFLAG_WIDTH + 4), height, Graphics.LEFT | Graphics.TOP);
-
-					height = height + height_line;
-					lineChar = x;
-				}
-			}
-
-			g.drawSubstring(original, lineChar, (x - lineChar), (IFLAG_WIDTH + 4), height, Graphics.LEFT | Graphics.TOP);
-
-			height = height + height_line;
+		if (word.equals("-")) {
+			g.drawLine(0, position, (getWidth() - SCROLLBAR_WIDTH), position);
+			return;
 		}
 
+		Image flag = null;
+		int heightLine;
+		int widthLine;
 
-		g.setFont(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM));
-
-		if(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM).stringWidth(translate) <= width_line) {
-			g.drawString(translate, (getWidth() - IFLAG_WIDTH - SCROLLBAR_WIDTH - 4), height, Graphics.RIGHT | Graphics.TOP);
-
-			height = height + height_line;
+		if (original) {
+			flag = flags[dictionary.getSearch().getDirection()];
 		} else {
-			lineChar = 0;
-
-			for(x = 0; x < translate.length(); x++) {
-				if(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM).substringWidth(translate, lineChar, (x - lineChar)) <= width_line) continue;
-				else {
-					g.drawSubstring(translate, lineChar, (x - lineChar), (getWidth() - IFLAG_WIDTH - SCROLLBAR_WIDTH - 4), height, Graphics.RIGHT | Graphics.TOP);
-
-					height = height + height_line;
-					lineChar = x;
-				}
-			}
-
-			g.drawSubstring(translate, lineChar, (x - lineChar), (getWidth() - IFLAG_WIDTH - SCROLLBAR_WIDTH - 4), height, Graphics.RIGHT | Graphics.TOP);
-
-			height = height + height_line;
+			flag = flags[(dictionary.getSearch().getDirection() == Search.ENG_CZE) ? Search.CZE_ENG : Search.ENG_CZE];
 		}
 
-		//g.drawImage(iFlag[dictionary.getSearch().results_translate], (getWidth() - SCROLLBAR_WIDTH - 2), (height - 3), Graphics.RIGHT | Graphics.BOTTOM);
+		heightLine = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM).getHeight();
+		widthLine = getWidth() - FLAG_WIDTH - SCROLLBAR_WIDTH - WIDTH_MARGIN;
 
-		height = height + 1;
+		g.drawImage(flag, HORIZONTAL_SPACE, position + VERTICAL_SPACE, Graphics.LEFT | Graphics.TOP);
 
-		if(draw_end_line) g.drawLine(0, height, (getWidth() - SCROLLBAR_WIDTH), height);
-	}
+		g.setFont(Font.getFont(Font.FACE_PROPORTIONAL, original ? Font.STYLE_BOLD : Font.STYLE_PLAIN, Font.SIZE_MEDIUM));
 
-	public void print() {
-		System.out.println("xxx");
-	}
-
-	private int heightWord(String original, String translate) {
-		int height = 0;
-		int height_line = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM).getHeight();
-		int width_line = getWidth() - IFLAG_WIDTH - SCROLLBAR_WIDTH - 8;
-
-		int lineChar = 0;
-		int x;
-
-		height = 2;
-
-		if(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM).stringWidth(original) <= width_line) {
-			height = height + height_line;
+		if (Font.getFont(Font.FACE_PROPORTIONAL, original ? Font.STYLE_BOLD : Font.STYLE_PLAIN, Font.SIZE_MEDIUM).stringWidth(word) <= widthLine) {
+			g.drawString(word, (FLAG_WIDTH + FLAG_MARGIN), position, Graphics.LEFT | Graphics.TOP);
 		} else {
-			lineChar = 0;
-
-			for(x = 0; x < original.length(); x++) {
-				if(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM).substringWidth(original, lineChar, (x - lineChar)) <= width_line) continue;
-				else {
-					height = height + height_line;
-					lineChar = x;
-				}
-			}
-
-			height = height + height_line;
-		}
-
-		height = height + 2;
-
-		if(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM).stringWidth(translate) <= width_line) {
-			height = height + height_line;
-		} else {
-			lineChar = 0;
-
-			for(x = 0; x < translate.length(); x++) {
-				if(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM).substringWidth(translate, lineChar, (x - lineChar)) <= width_line) continue;
-				else {
-					height = height + height_line;
-					lineChar = x;
-				}
-			}
-
-			height = height + height_line;
-		}
-
-		height = height + 1;
-
-		return height;
-	}
-
-	private void search(Graphics g) {
-		//g.drawImage(iSearching[dictionary.getSearch().searching_image], (getWidth() - 5), 4, Graphics.RIGHT | Graphics.TOP);
-	}
-
-	private void notice(Graphics g, int notice) {
-		String text = "";
-		int width_line = getWidth() - SCROLLBAR_WIDTH - 10;
-
-		if(notice == Search.NOTICE_NO_RESULTS) {
-			g.setColor(0, 0, 0);
-			text = "Nebyl nalezen žádný překlad.";
-		} else if(notice == Search.NOTICE_ERROR) {
-			g.setColor(255, 0, 0);
-			text = "Nastala chyba při hledání!";
-		}
-
-		g.setFont(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_SMALL));
-
-		if(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_SMALL).stringWidth(text) <= width_line) {
-			g.drawString(text, ((width_line / 2) + 5), (getHeight() / 2), Graphics.HCENTER | Graphics.TOP);
-		} else {
-			int height = 0;
-			int height_line = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_SMALL).getHeight();
 			int lineChar = 0;
 
-			int x;
+			int i = 0;
+			for (i = 0; i < word.length(); i++) {
+				if (Font.getFont(Font.FACE_PROPORTIONAL, original ? Font.STYLE_BOLD : Font.STYLE_PLAIN, Font.SIZE_MEDIUM).substringWidth(word, lineChar, (i - lineChar)) <= widthLine) {
+					continue;
+				} else {
+					g.drawSubstring(word, lineChar, (i - lineChar), (FLAG_WIDTH + FLAG_MARGIN), position, Graphics.LEFT | Graphics.TOP);
 
-			for(x = 0; x < text.length(); x++) {
-				if(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_SMALL).substringWidth(text, lineChar, (x - lineChar)) <= width_line) continue;
-				else {
-					g.drawSubstring(text, lineChar, (x - lineChar), ((width_line / 2) + 5), ((getHeight() / 2) + height), Graphics.HCENTER | Graphics.TOP);
-
-					height = height + height_line;
-					lineChar = x;
+					position += heightLine;
+					lineChar = i;
 				}
 			}
 
-			g.drawSubstring(text, lineChar, (x - lineChar), (width_line / 2), ((getHeight() / 2) + height), Graphics.HCENTER | Graphics.TOP);
+			g.drawSubstring(word, lineChar, (i - lineChar), (FLAG_WIDTH + FLAG_MARGIN), position, Graphics.LEFT | Graphics.TOP);
 		}
 	}
 
+	/**
+	 * Paint scrollbar.
+	 * 
+	 * @param g
+	 */
+	private void paintScrollbar(Graphics g) {
+		int maxHeight = formHeight - 2;
+		int scrollbarHeight = (int) (((float) formHeight / (float) wordsAllHeight) * maxHeight);
+		int scrollbarPosition = (int) (((float) formHeight / (float) wordsAllHeight) * wordsPosition);
+
+		if (scrollbarHeight > maxHeight) {
+			scrollbarHeight = maxHeight;
+		}
+		
+		if ((scrollbarPosition + scrollbarHeight) > maxHeight) {
+			scrollbarPosition = (maxHeight - scrollbarHeight);
+		}
+
+		g.setColor(0, 0, 0);
+		g.drawLine(getWidth() - SCROLLBAR_WIDTH, HEADER_HEIGHT, getWidth() - SCROLLBAR_WIDTH, getHeight() - FOOTER_HEIGHT);
+		g.fillRect(getWidth() - SCROLLBAR_WIDTH + 2, HEADER_HEIGHT + 1 + scrollbarPosition, SCROLLBAR_WIDTH - 3, scrollbarHeight);
+	}
+
+	/**
+	 * Get word height.
+	 * 
+	 * @param word
+	 * @param original is original word
+	 * @return height
+	 */
+	private int getWordHeight(String word, boolean original) {
+		if (word.equals("-")) {
+			return LINE_HEIGHT;
+		}
+
+		int height = VERTICAL_SPACE;
+		
+		int heightLine = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM).getHeight();
+		int widthLine = getWidth() - FLAG_WIDTH - SCROLLBAR_WIDTH - WIDTH_MARGIN;
+
+		if (Font.getFont(Font.FACE_PROPORTIONAL, original ? Font.STYLE_BOLD : Font.STYLE_PLAIN, Font.SIZE_MEDIUM).stringWidth(word) <= widthLine) {
+			height += heightLine;
+		} else {
+			int lineChar = 0;
+
+			for (int i = 0; i < word.length(); i++) {
+				if (Font.getFont(Font.FACE_PROPORTIONAL, original ? Font.STYLE_BOLD : Font.STYLE_PLAIN, Font.SIZE_MEDIUM).substringWidth(word, lineChar, (i - lineChar)) <= widthLine) {
+					continue;
+				} else {
+					height += heightLine;
+					lineChar = i;
+				}
+			}
+
+			height = height + heightLine;
+		}
+
+		return height + VERTICAL_SPACE;
+	}
+
+	/**
+	 * Set which word is original.
+	 * 
+	 * @param words array with words
+	 * @return array where original word is true
+	 */
+	private boolean[] getOriginals(String[] words) {
+		boolean allOriginals[] = new boolean[words.length];
+		boolean original = true;
+
+		for (int i = 0; i < words.length; i++) {
+			allOriginals[i] = original;
+
+			if (original) {
+				original = false;
+			}
+			if (words[i].equals("-")) {
+				original = true;
+			}
+		}
+
+		return allOriginals;
+	}
+
+	/**
+	 * Before search.
+	 */
+	public void startSearch() {
+		working.restart();
+		heights.removeAllElements();
+		words = new String[0];
+		originals = new boolean[0];
+		wordsAllHeight = 0;
+		wordsPosition = 0;
+	}
+
+	/**
+	 * After search.
+	 */
+	public void stopSearch() {
+		working.stop();
+	}
+
+	/**
+	 * Key pressed.
+	 * 
+	 * @param key
+	 */
 	protected void keyPressed(int key) {
 		int keyCode = getGameAction(key);
 
-		if((keyCode == Canvas.DOWN) || (key == Canvas.KEY_NUM8)) {
-			if(dictionary.getSearch().words_height_all <= FORM_HEIGHT) return;
+		if ((keyCode == Canvas.DOWN) || (key == Canvas.KEY_NUM8)) {
+			if (wordsAllHeight <= formHeight) {
+				return;
+			}
 
-			if((dictionary.getSearch().words_position + FORM_HEIGHT + 5) > dictionary.getSearch().words_height_all) dictionary.getSearch().words_position = (dictionary.getSearch().words_height_all - FORM_HEIGHT);
-			else dictionary.getSearch().words_position = dictionary.getSearch().words_position + 5;
-			repaint();
+			if ((wordsPosition + formHeight + SCROLL_STEP) > wordsAllHeight) {
+				wordsPosition = wordsAllHeight - formHeight;
+			} else {
+				wordsPosition += SCROLL_STEP;
+				timerKey = new Timer();
+				timerKey.schedule(downKey, 0, 50);
+			}		
+		} else if ((keyCode == Canvas.UP) || (key == Canvas.KEY_NUM2)) {
+			if (wordsAllHeight <= formHeight) {
+				return;
+			}
 
-			task_key = new DownKey();
-			timer_key = new Timer();
-			timer_key.schedule(task_key, 0, 50);
-		} else if((keyCode == Canvas.UP) || (key == Canvas.KEY_NUM2)) {
-			if(dictionary.getSearch().words_height_all <= FORM_HEIGHT) return;
+			if ((wordsPosition - SCROLL_STEP) < 0) {
+				wordsPosition = 0;
+			} else {
+				wordsPosition -= SCROLL_STEP;
+				timerKey = new Timer();
+				timerKey.schedule(upKey, 0, 50);
+			}		
+		} else if (key == Canvas.KEY_NUM7) {
+			if (wordsAllHeight <= formHeight) {
+				return;
+			}
 
-			if((dictionary.getSearch().words_position - 5) < 0) dictionary.getSearch().words_position = 0;
-			else dictionary.getSearch().words_position = dictionary.getSearch().words_position - 5;
-			repaint();
+			if ((wordsPosition + (2 * formHeight)) > wordsAllHeight) {
+				wordsPosition = wordsAllHeight - formHeight;
+			} else {
+				wordsPosition += formHeight;
+			}
+		} else if (key == Canvas.KEY_NUM1) {
+			if (wordsAllHeight <= formHeight) {
+				return;
+			}
 
-			task_key = new UpKey();
-			timer_key = new Timer();
-			timer_key.schedule(task_key, 0, 50);
-		} else if(key == Canvas.KEY_NUM7) {
-			if(dictionary.getSearch().words_height_all <= FORM_HEIGHT) return;
+			if ((wordsPosition - formHeight) < 0) {
+				wordsPosition = 0;
+			} else {
+				wordsPosition -= formHeight;
+			}
+		} else if (key == Canvas.KEY_NUM9) {
+			if (wordsAllHeight <= formHeight) {
+				return;
+			}
 
-			if((dictionary.getSearch().words_position + FORM_HEIGHT + FORM_HEIGHT) > dictionary.getSearch().words_height_all) dictionary.getSearch().words_position = (dictionary.getSearch().words_height_all - FORM_HEIGHT);
-			else dictionary.getSearch().words_position = dictionary.getSearch().words_position + FORM_HEIGHT;
-			repaint();
-		} else if(key == Canvas.KEY_NUM1) {
-			if(dictionary.getSearch().words_height_all <= FORM_HEIGHT) return;
+			wordsPosition = wordsAllHeight - formHeight;
+		} else if (key == Canvas.KEY_NUM3) {
+			if (wordsAllHeight <= formHeight) return;
 
-			if((dictionary.getSearch().words_position - FORM_HEIGHT) < 0) dictionary.getSearch().words_position = 0;
-			else dictionary.getSearch().words_position = dictionary.getSearch().words_position - FORM_HEIGHT;
-			repaint();
-		} else if(key == Canvas.KEY_NUM9) {
-			if(dictionary.getSearch().words_height_all <= FORM_HEIGHT) return;
-
-			dictionary.getSearch().words_position = (dictionary.getSearch().words_height_all - FORM_HEIGHT);
-			repaint();
-		} else if(key == Canvas.KEY_NUM3) {
-			if(dictionary.getSearch().words_height_all <= FORM_HEIGHT) return;
-
-			dictionary.getSearch().words_position = 0;
-			repaint();
-		} if((keyCode == Canvas.FIRE) || (key == Canvas.KEY_NUM5)) {
-			dictionary.showSearch();
+			wordsPosition = 0;
 		}
+		
+		repaint();
 	}
 
+	/**
+	 * Key release (only stop key timer).
+	 * 
+	 * @param key
+	 */
 	protected void keyReleased(int key) {
 		int keyCode = getGameAction(key);
 
-		if((keyCode == Canvas.DOWN) || (keyCode == Canvas.KEY_NUM2)) {
-			if(timer_key != null) {
-				timer_key.cancel();
-				task_key = null;
-				timer_key = null;
-			}
-		} else if((keyCode == Canvas.UP) || (keyCode == Canvas.KEY_NUM8)) {
-			if(timer_key != null) {
-				timer_key.cancel();
-				task_key = null;
-				timer_key = null;
-			}
+		if ((keyCode == Canvas.DOWN) || (keyCode == Canvas.KEY_NUM2) || (keyCode == Canvas.UP) || (keyCode == Canvas.KEY_NUM8)) {
+			timerKey.cancel();
 		}
 	}
 
+	/**
+	 * Action listener.
+	 * 
+	 * @param c
+	 * @param d
+	 */
 	public void commandAction(Command c, Displayable d) {
 		if (c == cmdNewSearch) {
 			dictionary.showSearch();
+		} else if (c == cmdLang) {
+			dictionary.showLang();
+		} else if (c == cmdAbout) {
+			dictionary.showAbout();
+		} else if (c == cmdExit) {
+			dictionary.exit();
 		}
 	}
 
+	/**
+	 * Down key timer class.
+	 */
 	private class DownKey extends TimerTask {
+		/**
+		 * Move words down.
+		 */
 		public void run() {
-			if((dictionary.getSearch().words_position + FORM_HEIGHT + 5) > dictionary.getSearch().words_height_all) dictionary.getSearch().words_position = (dictionary.getSearch().words_height_all - FORM_HEIGHT);
-			else dictionary.getSearch().words_position = dictionary.getSearch().words_position + 5;
+			if ((wordsPosition + formHeight + SCROLL_STEP) > wordsAllHeight) {
+				wordsPosition = wordsAllHeight - formHeight;
+				timerKey.cancel();
+			} else {
+				wordsPosition = wordsPosition + SCROLL_STEP;
+			}
+			
 			repaint();
 		}
 	}
 
+	/**
+	 * Up key timer class.
+	 */
 	private class UpKey extends TimerTask {
+		/**
+		 * Move word up.
+		 */
 		public void run() {
-			if((dictionary.getSearch().words_position - 5) < 0) dictionary.getSearch().words_position = 0;
-			else dictionary.getSearch().words_position = dictionary.getSearch().words_position - 5;
+			if ((wordsPosition - SCROLL_STEP) < 0) {
+				wordsPosition = 0;
+				timerKey.cancel();
+			} else {
+				wordsPosition = wordsPosition - SCROLL_STEP;
+			}
+			
 			repaint();
 		}
-	}
-
-	protected void hideNotify() {
-		dictionary.getSearch().cancelSearching();
 	}
 }

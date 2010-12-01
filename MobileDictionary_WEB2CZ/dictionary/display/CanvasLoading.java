@@ -8,7 +8,7 @@ import javax.microedition.lcdui.*;
 /**
  * Loading canvas.
  *
- * @author Jakub Trmota
+ * @author Jakub Trmota | Forrest79
  */
 public final class CanvasLoading extends Canvas implements CommandListener {
 	/**

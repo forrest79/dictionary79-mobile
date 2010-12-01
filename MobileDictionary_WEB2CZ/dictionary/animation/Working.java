@@ -8,9 +8,9 @@ import javax.microedition.lcdui.*;
 /**
  * Working animation.
  *
- * @author Jakub Trmota
+ * @author Jakub Trmota | Forrest79
  */
-public class Working extends TimerTask {
+public final class Working extends TimerTask {
 	/**
 	 * Animation frames count.
 	 */
@@ -57,6 +57,11 @@ public class Working extends TimerTask {
 	private int frame = 0;
 
 	/**
+	 * Is animation running.
+	 */
+	boolean running = false;
+
+	/**
 	 * Initialize animation.
 	 *
 	 * @param canvas canvas to repaint
@@ -74,8 +79,6 @@ public class Working extends TimerTask {
 		for (int i = 0; i < FRAMES; i++) {
 			working[i] = Image.createImage("/resources/working" + (i + 1) + ".png");
 		}
-
-		timer = new Timer();
 	}
 
 	/**
@@ -93,14 +96,34 @@ public class Working extends TimerTask {
 	 * Start animation.
 	 */
 	public void start() {
+		running = true;
+		timer = new Timer();
 		timer.schedule(this, 0, 100);
+	}
+
+	/**
+	 * Restart animation from first frame.
+	 */
+	public void restart() {
+		frame = 0;
+		start();
 	}
 
 	/**
 	 * Stop animation.
 	 */
 	public void stop() {
+		running = false;
 		timer.cancel();
+	}
+
+	/**
+	 * Return if animation is running.
+	 * 
+	 * @return
+	 */
+	public boolean isRunning() {
+		return running;
 	}
 
 	/**

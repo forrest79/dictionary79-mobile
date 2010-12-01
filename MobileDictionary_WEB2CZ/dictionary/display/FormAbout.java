@@ -6,7 +6,7 @@ import javax.microedition.lcdui.*;
 /**
  * Form about dictionary.
  *
- * @author Jakub Trmota
+ * @author Jakub Trmota | Forrest79
  */
 public final class FormAbout extends Form implements CommandListener {
 	/**

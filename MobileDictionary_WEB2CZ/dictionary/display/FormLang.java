@@ -7,7 +7,7 @@ import javax.microedition.lcdui.*;
 /**
  * Form lang.
  *
- * @author Jakub Trmota
+ * @author Jakub Trmota | Forrest79
  */
 public final class FormLang extends Form implements CommandListener {
 	/**

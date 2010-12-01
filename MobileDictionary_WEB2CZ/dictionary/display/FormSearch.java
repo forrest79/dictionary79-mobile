@@ -4,27 +4,56 @@ import dictionary.Dictionary;
 import javax.microedition.lcdui.*;
 
 /**
+ * Form search.
  *
- * @author Forrest79
+ * @author Jakub Trmota | Forrest79
  */
 public final class FormSearch extends Form implements CommandListener {
-
+	/**
+	 * Dictionary midlet.
+	 */
 	private Dictionary dictionary = null;
 
+	/**
+	 * Text fielt word to translate.
+	 */
 	private TextField txtWord = null;
 
+	/**
+	 * Choise group direction.
+	 */
 	private ChoiceGroup chgDirection = null;
 
-	private Command cmdResults = null;
-
+	/**
+	 * Command search.
+	 */
 	private Command cmdSearch = null;
 
+	/**
+	 * Command show results.
+	 */
+	private Command cmdResults = null;
+
+	/**
+	 * Command lang.
+	 */
 	private Command cmdLang = null;
-	
+
+	/**
+	 * Command about.
+	 */
 	private Command cmdAbout = null;
 
+	/**
+	 * Command exit.
+	 */
 	private Command cmdExit = null;
 
+	/**
+	 * Form search initialization.
+	 * 
+	 * @param dictionary
+	 */
 	public FormSearch(Dictionary dictionary) {
 		super(dictionary.translate("Hledat slovíčko"));
 
@@ -34,8 +63,8 @@ public final class FormSearch extends Form implements CommandListener {
 		chgDirection = new ChoiceGroup(dictionary.translate("Směr překladu") + ":", Choice.EXCLUSIVE);
 		chgDirection.append(dictionary.translate("z angličtiny do češtiny"), null);
 		chgDirection.append(dictionary.translate("z češtiny do angličtiny"), null);
-		cmdResults = new Command(dictionary.translate("Výsledky"), Command.SCREEN, 0);
-		cmdSearch = new Command(dictionary.translate("Hledej"), Command.SCREEN, 1);
+		cmdSearch = new Command(dictionary.translate("Hledej"), Command.SCREEN, 0);
+		cmdResults = new Command(dictionary.translate("Výsledky"), Command.SCREEN, 1);
 		cmdLang = new Command(dictionary.translate("Jazyk"), Command.SCREEN, 2);
 		cmdAbout = new Command(dictionary.translate("O slovníku"), Command.SCREEN, 3);
 		cmdExit = new Command(dictionary.translate("Konec"), Command.SCREEN, 4);
@@ -48,6 +77,12 @@ public final class FormSearch extends Form implements CommandListener {
 		this.addCommand(cmdExit);
 	}
 
+	/**
+	 * Action listener.
+	 * 
+	 * @param c
+	 * @param d
+	 */
 	public void commandAction(Command c, Displayable d) {
 		if (c == cmdExit) {
 			dictionary.exit();

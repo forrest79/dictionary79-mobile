@@ -5,7 +5,7 @@ import javax.microedition.rms.*;
 /**
  * Locale class.
  *
- * @author Jakub Trmota
+ * @author Jakub Trmota | Forrest79
  */
 public final class Locale {
 	/**
@@ -49,7 +49,7 @@ public final class Locale {
 	public Locale() throws RecordStoreException {
 		openRecords();
 
-		if(records.getNumRecords() == 0) {
+		if (records.getNumRecords() == 0) {
 			firstRun = true;
 
 			if (System.getProperty("microedition.locale").startsWith("cs")) {
