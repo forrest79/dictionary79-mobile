@@ -23,12 +23,12 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	/**
 	 * Header height.
 	 */
-	private static final int HEADER_HEIGHT = 20;
+	private static final int HEADER_HEIGHT = 22;
 
 	/**
 	 * Footer height.
 	 */
-	private static final int FOOTER_HEIGHT = 18;
+	private static final int FOOTER_HEIGHT = 20;
 
 	/**
 	 * Scrollbar width.
