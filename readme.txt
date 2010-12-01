@@ -16,5 +16,4 @@ REQUIREMENTS
 
 Mobile device compatible with J2ME.
 
-
-http://forrest79.github.com/phpminivc
+https://github.com/forrest79/mobiledictionary_web2cz
