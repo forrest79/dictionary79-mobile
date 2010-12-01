@@ -14,12 +14,12 @@ public final class CanvasLoading extends Canvas implements CommandListener {
 	/**
 	 * Welcome image width.
 	 */
-	public static final int WELCOME_WIDTH = 119;
+	public static final int WELCOME_WIDTH = 100;
 	
 	/**
 	 * Welcome image height
 	 */
-	public static final int WELCOME_HEIGHT = 76;
+	public static final int WELCOME_HEIGHT = 100;
 
 	/**
 	 * Dictionary midlet.
