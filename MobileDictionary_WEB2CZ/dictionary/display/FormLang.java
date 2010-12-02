@@ -37,17 +37,36 @@ public final class FormLang extends Form implements CommandListener {
 	 */
 	public FormLang(Dictionary dictionary) {
 		super(dictionary.translate("Jazyk"));
+		
 		this.dictionary = dictionary;
 
+		initialize();
+	}
+
+	/**
+	 * Initialize components.
+	 */
+	public void initialize() {
 		chgLang = new ChoiceGroup(dictionary.translate("Jazyk") + ":", Choice.EXCLUSIVE);
 		chgLang.append(dictionary.translate("česky"), null);
 		chgLang.append(dictionary.translate("anglicky"), null);
 		cmdSave = new Command(dictionary.translate("Uložit"), Command.SCREEN, 0);
 		cmdBack = new Command(dictionary.translate("Zpět"), Command.SCREEN, 1);
 
-		this.append(chgLang);
-		this.addCommand(cmdSave);
-		this.addCommand(cmdBack);
+		append(chgLang);
+		addCommand(cmdSave);
+		addCommand(cmdBack);
+	}
+
+	/**
+	 * Reinitialize components.
+	 */
+	public void reinitialize() {
+		deleteAll();
+		removeCommand(cmdSave);
+		removeCommand(cmdBack);
+
+		initialize();
 	}
 
 	/**
@@ -58,9 +77,8 @@ public final class FormLang extends Form implements CommandListener {
 	 */
 	public void commandAction(Command c, Displayable d) {
 		if (c == cmdSave) {
-			dictionary.setLocale(getLang());
-
 			dictionary.back();
+			dictionary.setLocale(getLangChoice());
 		} else if (c == cmdBack) {
 			dictionary.back();
 		}
@@ -84,7 +102,7 @@ public final class FormLang extends Form implements CommandListener {
 	 * 
 	 * @return lang id
 	 */
-	private String getLang() {
+	private String getLangChoice() {
 		if (chgLang.getSelectedIndex() == 0) {
 			return Locale.CS;
 		} else {

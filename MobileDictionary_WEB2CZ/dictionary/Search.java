@@ -80,29 +80,31 @@ public final class Search {
 
 		results = new Vector();
 
-		indexesCze = new Vector();		
-		DataInputStream disIndexesCze = new DataInputStream(this.getClass().getResourceAsStream("/data/cze.index"));
-		while (true) {
-			try {
-				Index index = new Index(disIndexesCze.readUTF(), disIndexesCze.readShort());
-				indexesCze.addElement(index);
-			} catch (EOFException e) {
-				break;
-			}
-		}
-		disIndexesCze.close();
+		indexesCze = readIndexes("/data/cze.index");
+		indexesEng = readIndexes("/data/eng.index");
+	}
 
-		indexesEng = new Vector();
-		DataInputStream disIndexesEng = new DataInputStream(this.getClass().getResourceAsStream("/data/eng.index"));
+	/**
+	 * Read indexes from file.
+	 * 
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
+	private Vector readIndexes(String file) throws IOException {
+		Vector indexes = new Vector();
+		DataInputStream disIndexes = new DataInputStream(this.getClass().getResourceAsStream(file));
 		while (true) {
 			try {
-				Index index = new Index(disIndexesEng.readUTF(), disIndexesEng.readShort());
-				indexesEng.addElement(index);
+				Index index = new Index(disIndexes.readUTF(), disIndexes.readShort());
+				indexes.addElement(index);
 			} catch (EOFException e) {
 				break;
 			}
 		}
-		disIndexesEng.close();
+		disIndexes.close();
+
+		return indexes;
 	}
 
 	/**
@@ -123,6 +125,11 @@ public final class Search {
 		this.direction = direction;
 	}
 
+	/**
+	 * Return results as string array.
+	 * 
+	 * @return
+	 */
 	public String[] getResults() {
 		String allResults[] = new String[results.size()];
 
@@ -133,14 +140,27 @@ public final class Search {
 		return allResults;
 	}
 
+	/**
+	 * Return results count.
+	 * 
+	 * @return
+	 */
 	public int getResultsCount() {
 		return resultsCount;
 	}
 
+	/**
+	 * Get search direction.
+	 *
+	 * @return
+	 */
 	public int getDirection() {
 		return direction;
 	}
 
+	/**
+	 * Searching start.
+	 */
 	private void startSearch() {
 		results.removeAllElements();
 		resultsCount = 0;
@@ -150,6 +170,9 @@ public final class Search {
 		dictionary.repaintResults();
 	}
 
+	/**
+	 * Searching stop.
+	 */
 	private void stopSearch() {
 		dictionary.stopSearch();
 
@@ -366,6 +389,7 @@ public final class Search {
 		 * Word.
 		 */
 		private String word = "";
+		
 		/**
 		 * And it's index.
 		 */

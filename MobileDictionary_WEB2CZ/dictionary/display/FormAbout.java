@@ -34,11 +34,29 @@ public final class FormAbout extends Form implements CommandListener {
 
 		this.dictionary = dictionary;
 
+		initialize();
+	}
+	
+	/**
+	 * Initialize components.
+	 */
+	public void initialize() {
 		strAbout = new StringItem(dictionary.translate("Verze slovníku") + ": " + Dictionary.VERSION + "\n", dictionary.translate("O slovníku: text"));
 		cmdBack = new Command(dictionary.translate("Zpět"), Command.SCREEN, 0);
 
-		this.append(strAbout);
-		this.addCommand(cmdBack);
+		append(strAbout);
+		addCommand(cmdBack);
+	}
+
+	/**
+	 * Reinitialize components.
+	 */
+	public void reinitialize() {
+		deleteAll();
+		removeCommand(cmdBack);
+
+		initialize();
+
 	}
 
 	/**

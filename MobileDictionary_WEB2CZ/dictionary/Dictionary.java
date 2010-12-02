@@ -2,7 +2,6 @@ package dictionary;
 
 import dictionary.display.*;
 import dictionary.locale.Locale;
-import java.io.IOException;
 import javax.microedition.midlet.*;
 import javax.microedition.lcdui.*;
 import javax.microedition.rms.RecordStoreException;
@@ -90,7 +89,10 @@ public final class Dictionary extends MIDlet {
 
 				search = new Search(this);
 
-				initializeForms();
+				formSearch = new FormSearch(this);
+				formLang = new FormLang(this);
+				formLang.setLangChoice(locale.getLocale());
+				formAbout = new FormAbout(this);
 
 				canvasResults = new CanvasResults(this);
 
@@ -137,27 +139,6 @@ public final class Dictionary extends MIDlet {
 		}
 		
 		notifyDestroyed();
-	}
-
-	/**
-	 * Initialize forms.
-	 * 
-	 * @throws IOException
-	 */
-	private void initializeForms() throws IOException {
-		canvasResults = new CanvasResults(this);
-		formSearch = new FormSearch(this);
-		formLang = new FormLang(this);
-		formLang.setLangChoice(locale.getLocale());
-		formAbout = new FormAbout(this);
-
-		canvasResults.repaint();
-
-		if (back instanceof FormSearch) {
-			back = formSearch;
-		} else if (back instanceof CanvasResults) {
-			back = canvasResults;
-		}
 	}
 
 	/**
@@ -241,13 +222,13 @@ public final class Dictionary extends MIDlet {
 	public void setLocale(String locale) {
 		try {
 			if (this.locale.setLocale(locale)) {
-				this.locale.closeRecords();
-				initializeForms();
+				canvasResults.reinitialize();
+				formSearch.reinitialize();
+				formLang.reinitialize();
+				formLang.setLangChoice(this.locale.getLocale());
+				formAbout.reinitialize();
 			}
 		} catch (RecordStoreException e) {
-			System.err.print(e);
-			alert(translate("Chyba"), e.getMessage(), AlertType.ERROR);
-		} catch (IOException e) {
 			System.err.print(e);
 			alert(translate("Chyba"), e.getMessage(), AlertType.ERROR);
 		}

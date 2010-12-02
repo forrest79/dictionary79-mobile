@@ -10,7 +10,7 @@ import javax.microedition.lcdui.*;
  *
  * @author Jakub Trmota | Forrest79
  */
-public final class Working extends TimerTask {
+public final class Working {
 	/**
 	 * Animation frames count.
 	 */
@@ -56,6 +56,8 @@ public final class Working extends TimerTask {
 	 */
 	private int frame = 0;
 
+	private Animation animation = null;
+
 	/**
 	 * Is animation running.
 	 */
@@ -82,23 +84,15 @@ public final class Working extends TimerTask {
 	}
 
 	/**
-	 * Run animation.
-	 */
-	public void run() {
-		canvas.repaint();
-		frame++;
-		if (frame == FRAMES) {
-			frame = 0;
-		}
-	}
-
-	/**
 	 * Start animation.
 	 */
 	public void start() {
-		running = true;
-		timer = new Timer();
-		timer.schedule(this, 0, 100);
+		if (!running) {
+			running = true;
+			timer = new Timer();
+			animation = new Animation();
+			timer.schedule(animation, 0, 100);
+		}
 	}
 
 	/**
@@ -114,6 +108,7 @@ public final class Working extends TimerTask {
 	 */
 	public void stop() {
 		running = false;
+		animation.cancel();
 		timer.cancel();
 	}
 
@@ -133,5 +128,15 @@ public final class Working extends TimerTask {
 	 */
 	public void draw(Graphics g) {
 		g.drawImage(working[frame], x, y, Graphics.LEFT | Graphics.TOP);
+	}
+
+	private final class Animation extends TimerTask {
+		public void run() {
+			canvas.repaint();
+			frame++;
+			if (frame == FRAMES) {
+				frame = 0;
+			}
+		}
 	}
 }

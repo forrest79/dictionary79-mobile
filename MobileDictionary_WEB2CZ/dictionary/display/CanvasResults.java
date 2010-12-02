@@ -21,14 +21,9 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	private static final int FLAG_WIDTH = 16;
 
 	/**
-	 * Header height.
+	 * Flag image height.
 	 */
-	private static final int HEADER_HEIGHT = 22;
-
-	/**
-	 * Footer height.
-	 */
-	private static final int FOOTER_HEIGHT = 20;
+	private static final int FLAG_HEIGHT = 11;
 
 	/**
 	 * Scrollbar width.
@@ -38,7 +33,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	/**
 	 * Small scroll step.
 	 */
-	private static final int SCROLL_STEP = 5;
+	private static final int SCROLL_STEP = 10;
 
 	/**
 	 * Vertical space between words.
@@ -58,7 +53,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	/**
 	 * Right margin.
 	 */
-	private static final int WIDTH_MARGIN = 10;
+	private static final int WIDTH_MARGIN = 7;
 
 	/**
 	 * Words seperator height.
@@ -76,6 +71,16 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	private Image flags[] = null;
 
 	/**
+	 * Header height.
+	 */
+	private int headerHeight = 25;
+
+	/**
+	 * Footer height.
+	 */
+	private int footerHeight = 25;
+
+	/**
 	 * Timer for keys down and up.
 	 */
 	private Timer timerKey = null;
@@ -89,6 +94,16 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	 * Up key timer.
 	 */
 	private TimerTask upKey = null;
+
+	/**
+	 * Is key down pressed.
+	 */
+	private boolean downKeyRunning = false;
+
+	/**
+	 * Is key up pressed.
+	 */
+	private boolean upKeyRunning = false;
 
 	/**
 	 * Form height (without header and footer).
@@ -153,32 +168,53 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	 */
 	public CanvasResults(Dictionary midlet) throws IOException {
 		this.dictionary = midlet;
-		
-		cmdNewSearch = new Command(dictionary.translate("Nové hledání"), Command.SCREEN, 0);
-		cmdLang = new Command(dictionary.translate("Jazyk"), Command.SCREEN, 1);
-		cmdAbout = new Command(dictionary.translate("O slovníku"), Command.SCREEN, 2);
-		cmdExit = new Command(dictionary.translate("Konec"), Command.SCREEN, 3);
 
-		this.addCommand(cmdNewSearch);
-		this.addCommand(cmdLang);
-		this.addCommand(cmdAbout);
-		this.addCommand(cmdExit);
+		initialize();
 
 		flags = new Image[2];
 		flags[Search.ENG_CZE] = Image.createImage("/resources/eng.png");
 		flags[Search.CZE_ENG] = Image.createImage("/resources/cze.png");
 
-		formHeight = getHeight() - HEADER_HEIGHT - FOOTER_HEIGHT;
+		headerHeight = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM).getHeight() + 6;
+		if (headerHeight < Working.HEIGHT) {
+			headerHeight = Working.HEIGHT + 2;
+		}
+		footerHeight = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_SMALL).getHeight() + 4;
+		formHeight = getHeight() - headerHeight - footerHeight;
 
 		heights = new Vector();
 
-		this.working = new Working(this, getWidth() - Working.WIDTH - 5, (HEADER_HEIGHT - Working.HEIGHT) / 2);
-
-		downKey = new DownKey();
-		upKey = new UpKey();
+		this.working = new Working(this, getWidth() - Working.WIDTH - 5, (headerHeight - Working.HEIGHT) / 2);
 
 		words = new String[0];
 		originals = new boolean[0];
+	}
+
+	/**
+	 * Initialize components.
+	 */
+	public void initialize() {
+		cmdNewSearch = new Command(dictionary.translate("Nové hledání"), Command.SCREEN, 0);
+		cmdLang = new Command(dictionary.translate("Jazyk"), Command.SCREEN, 1);
+		cmdAbout = new Command(dictionary.translate("O slovníku"), Command.SCREEN, 2);
+		cmdExit = new Command(dictionary.translate("Konec"), Command.SCREEN, 3);
+
+		addCommand(cmdNewSearch);
+		addCommand(cmdLang);
+		addCommand(cmdAbout);
+		addCommand(cmdExit);
+	}
+
+	/**
+	 * Reinitialize components.
+	 */
+	public void reinitialize() {
+		removeCommand(cmdNewSearch);
+		removeCommand(cmdLang);
+		removeCommand(cmdAbout);
+		removeCommand(cmdExit);
+
+		initialize();
 	}
 
 	/**
@@ -205,11 +241,11 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	 */
 	private void paintHeader(Graphics g) {
 		g.setColor(0, 0, 0);
-		g.fillRect(0, 0, getWidth(), HEADER_HEIGHT);
+		g.fillRect(0, 0, getWidth(), headerHeight);
 
 		g.setColor(255, 255, 255);
 		g.setFont(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM));
-		g.drawString(dictionary.translate("Výsledky hledání"), 5, 2, Graphics.LEFT | Graphics.TOP);
+		g.drawString(dictionary.translate("Výsledky hledání"), 5, (headerHeight - Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM).getHeight()) / 2, Graphics.LEFT | Graphics.TOP);
 
 		if (working.isRunning()) {
 			working.draw(g);
@@ -223,11 +259,11 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	 */
 	private void paintFooter(Graphics g) {
 		g.setColor(0, 0, 0);
-		g.fillRect(0, (getHeight() - FOOTER_HEIGHT), getWidth(), getHeight());
+		g.fillRect(0, (getHeight() - footerHeight), getWidth(), getHeight());
 
 		g.setFont(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_SMALL));
 		g.setColor(255, 255, 255);
-		g.drawString(dictionary.translate("Nalezeno překladů") + ": " + dictionary.getSearch().getResultsCount(), (getWidth() - 5), (getHeight() - 3), Graphics.RIGHT | Graphics.BOTTOM);
+		g.drawString(dictionary.translate("Nalezeno překladů") + ": " + dictionary.getSearch().getResultsCount(), getWidth() / 2, (getHeight() - footerHeight + ((footerHeight - Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_SMALL).getHeight()) / 2)), Graphics.HCENTER | Graphics.TOP);
 	}
 
 	/**
@@ -257,7 +293,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 		int actualHeight = 0;
 
 		g.setColor(255, 255, 255);
-		g.fillRect(0, HEADER_HEIGHT, getWidth(), (getHeight() - FOOTER_HEIGHT));
+		g.fillRect(0, headerHeight, getWidth(), (getHeight() - footerHeight));
 
 		for (int i = 0; i < words.length - 1; i++) {
 			actualHeight = ((Integer) (heights.elementAt(i))).intValue();
@@ -282,7 +318,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	 * @param original is original word
 	 */
 	private void paintWord(Graphics g, int position, String word, boolean original) {
-		position += HEADER_HEIGHT + VERTICAL_SPACE;
+		position += headerHeight + VERTICAL_SPACE;
 
 		g.setColor(0, 0, 0);
 
@@ -302,9 +338,9 @@ public final class CanvasResults extends Canvas implements CommandListener {
 		}
 
 		heightLine = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM).getHeight();
-		widthLine = getWidth() - FLAG_WIDTH - SCROLLBAR_WIDTH - WIDTH_MARGIN;
+		widthLine = getWidth() - FLAG_WIDTH - SCROLLBAR_WIDTH - HORIZONTAL_SPACE - FLAG_MARGIN - WIDTH_MARGIN;
 
-		g.drawImage(flag, HORIZONTAL_SPACE, position + VERTICAL_SPACE, Graphics.LEFT | Graphics.TOP);
+		g.drawImage(flag, HORIZONTAL_SPACE, position + ((heightLine - FLAG_HEIGHT) / 2) + 1, Graphics.LEFT | Graphics.TOP);
 
 		g.setFont(Font.getFont(Font.FACE_PROPORTIONAL, original ? Font.STYLE_BOLD : Font.STYLE_PLAIN, Font.SIZE_MEDIUM));
 
@@ -348,8 +384,8 @@ public final class CanvasResults extends Canvas implements CommandListener {
 		}
 
 		g.setColor(0, 0, 0);
-		g.drawLine(getWidth() - SCROLLBAR_WIDTH, HEADER_HEIGHT, getWidth() - SCROLLBAR_WIDTH, getHeight() - FOOTER_HEIGHT);
-		g.fillRect(getWidth() - SCROLLBAR_WIDTH + 2, HEADER_HEIGHT + 1 + scrollbarPosition, SCROLLBAR_WIDTH - 3, scrollbarHeight);
+		g.drawLine(getWidth() - SCROLLBAR_WIDTH, headerHeight, getWidth() - SCROLLBAR_WIDTH, getHeight() - footerHeight);
+		g.fillRect(getWidth() - SCROLLBAR_WIDTH + 2, headerHeight + 1 + scrollbarPosition, SCROLLBAR_WIDTH - 3, scrollbarHeight);
 	}
 
 	/**
@@ -367,7 +403,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 		int height = VERTICAL_SPACE;
 		
 		int heightLine = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM).getHeight();
-		int widthLine = getWidth() - FLAG_WIDTH - SCROLLBAR_WIDTH - WIDTH_MARGIN;
+		int widthLine = getWidth() - FLAG_WIDTH - SCROLLBAR_WIDTH - HORIZONTAL_SPACE - FLAG_MARGIN - WIDTH_MARGIN;
 
 		if (Font.getFont(Font.FACE_PROPORTIONAL, original ? Font.STYLE_BOLD : Font.STYLE_PLAIN, Font.SIZE_MEDIUM).stringWidth(word) <= widthLine) {
 			height += heightLine;
@@ -449,8 +485,13 @@ public final class CanvasResults extends Canvas implements CommandListener {
 				wordsPosition = wordsAllHeight - formHeight;
 			} else {
 				wordsPosition += SCROLL_STEP;
-				timerKey = new Timer();
-				timerKey.schedule(downKey, 0, 50);
+
+				if (!downKeyRunning) {
+					timerKey = new Timer();
+					downKey = new DownKey();
+					timerKey.schedule(downKey, 0, 50);
+					downKeyRunning = true;
+				}
 			}		
 		} else if ((keyCode == Canvas.UP) || (key == Canvas.KEY_NUM2)) {
 			if (wordsAllHeight <= formHeight) {
@@ -461,8 +502,13 @@ public final class CanvasResults extends Canvas implements CommandListener {
 				wordsPosition = 0;
 			} else {
 				wordsPosition -= SCROLL_STEP;
-				timerKey = new Timer();
-				timerKey.schedule(upKey, 0, 50);
+
+				if (!upKeyRunning) {
+					timerKey = new Timer();
+					upKey = new UpKey();
+					timerKey.schedule(upKey, 0, 50);
+					upKeyRunning = true;
+				}
 			}		
 		} else if (key == Canvas.KEY_NUM7) {
 			if (wordsAllHeight <= formHeight) {
@@ -508,6 +554,16 @@ public final class CanvasResults extends Canvas implements CommandListener {
 		int keyCode = getGameAction(key);
 
 		if ((keyCode == Canvas.DOWN) || (keyCode == Canvas.KEY_NUM2) || (keyCode == Canvas.UP) || (keyCode == Canvas.KEY_NUM8)) {
+			if (downKeyRunning) {
+				downKey.cancel();
+				downKeyRunning = false;
+			}
+
+			if (upKeyRunning) {
+				upKey.cancel();
+				upKeyRunning = false;
+			}
+
 			timerKey.cancel();
 		}
 	}
@@ -533,7 +589,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	/**
 	 * Down key timer class.
 	 */
-	private class DownKey extends TimerTask {
+	private final class DownKey extends TimerTask {
 		/**
 		 * Move words down.
 		 */
@@ -552,7 +608,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	/**
 	 * Up key timer class.
 	 */
-	private class UpKey extends TimerTask {
+	private final class UpKey extends TimerTask {
 		/**
 		 * Move word up.
 		 */
