@@ -1,8 +1,8 @@
-MobileDictionary [WEB2CZ] © Jakub Trmota, 2010 (http://forrest79.net)
+mDictionary79 © Jakub Trmota, 2010 (http://forrest79.net)
 
 LICENSE
 =======
-MobileDictionary [WEB2CZ] is distributed under GPL license. See license.txt.
+mDictionary79 is distributed under GPL license. See license.txt.
 
 
 INTRODUCTION
@@ -17,3 +17,14 @@ REQUIREMENTS
 Mobile device compatible with J2ME.
 
 https://github.com/forrest79/mobiledictionary_web2cz
+
+
+SOURCE CODE
+===========
+First, use PrepareDictionary. Input file is text file with translated words separate with tabs and with one translate on one line.
+
+Example:
+car	auto
+bus	autobus
+
+Create "data" subfolder and than copy all *.index and *.dat files to J2ME /data directory.

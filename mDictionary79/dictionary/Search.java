@@ -253,7 +253,7 @@ public final class Search {
 			try {
 				search();
 			} catch (IOException e) {
-				dictionary.alert("Chyba", e.getMessage(), AlertType.ERROR);
+				dictionary.alert(dictionary.translate("Chyba"), e.getMessage(), AlertType.ERROR);
 			}
 		}
 
