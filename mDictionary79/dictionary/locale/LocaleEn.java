@@ -27,7 +27,6 @@ public final class LocaleEn extends BaseLocale {
 		locales.put("Směr překladu", "Translation direction");
 		locales.put("z angličtiny do češtiny", "english - czech");
 		locales.put("z češtiny do angličtiny", "czech - english");
-		locales.put("Výsledky", "Results");
 		locales.put("Hledej", "Search");
 		locales.put("Zpět", "Back");
 		locales.put("Konec", "Exit");

@@ -71,7 +71,7 @@ public final class FormSearch extends Form implements CommandListener {
 		chgDirection.append(dictionary.translate("z angličtiny do češtiny"), null);
 		chgDirection.append(dictionary.translate("z češtiny do angličtiny"), null);
 		cmdSearch = new Command(dictionary.translate("Hledej"), Command.SCREEN, 0);
-		cmdResults = new Command(dictionary.translate("Výsledky"), Command.SCREEN, 1);
+		cmdResults = new Command(dictionary.translate("Výsledky hledání"), Command.SCREEN, 1);
 		cmdLang = new Command(dictionary.translate("Jazyk"), Command.SCREEN, 2);
 		cmdAbout = new Command(dictionary.translate("O slovníku"), Command.SCREEN, 3);
 		cmdExit = new Command(dictionary.translate("Konec"), Command.SCREEN, 4);
@@ -79,6 +79,9 @@ public final class FormSearch extends Form implements CommandListener {
 		append(txtWord);
 		append(chgDirection);
 		addCommand(cmdSearch);
+		if (dictionary.hasResults()) {
+			addCommand(cmdResults);
+		}
 		addCommand(cmdLang);
 		addCommand(cmdAbout);
 		addCommand(cmdExit);
@@ -90,6 +93,7 @@ public final class FormSearch extends Form implements CommandListener {
 	public void reinitialize() {
 		deleteAll();
 		removeCommand(cmdSearch);
+		removeCommand(cmdResults);
 		removeCommand(cmdLang);
 		removeCommand(cmdAbout);
 		removeCommand(cmdExit);

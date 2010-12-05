@@ -27,7 +27,6 @@ public final class LocaleCs extends BaseLocale {
 		locales.put("Směr překladu", "Směr překladu");
 		locales.put("z angličtiny do češtiny", "z angličtiny do češtiny");
 		locales.put("z češtiny do angličtiny", "z češtiny do angličtiny");
-		locales.put("Výsledky", "Výsledky");
 		locales.put("Hledej", "Hledej");
 		locales.put("Zpět", "Zpět");
 		locales.put("Konec", "Konec");

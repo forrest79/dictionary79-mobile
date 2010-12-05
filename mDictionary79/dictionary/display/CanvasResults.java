@@ -28,7 +28,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	/**
 	 * Scrollbar width.
 	 */
-	private static final int SCROLLBAR_WIDTH = 9;
+	private static final int SCROLLBAR_WIDTH = 5;
 
 	/**
 	 * Small scroll step.
@@ -61,6 +61,21 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	private static final int LINE_HEIGHT = 5;
 
 	/**
+	 * No reload.
+	 */
+	private static final int RELOAD_NONE = 0;
+
+	/**
+	 * Make reload.
+	 */
+	private static final int RELOAD = 1;
+
+	/**
+	 * Is already reloaded.
+	 */
+	private static final int RELOADED = 2;
+
+	/**
 	 * Dictionary midlet.
 	 */
 	private Dictionary dictionary = null;
@@ -79,6 +94,11 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	 * Footer height.
 	 */
 	private int footerHeight = 25;
+
+	/**
+	 * Scrollbar width.
+	 */
+	private int scrollbarWidth = 0;
 
 	/**
 	 * Timer for keys down and up.
@@ -114,6 +134,11 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	 * Words height.
 	 */
 	private Vector heights = null;
+
+	/**
+	 * Reload heights.
+	 */
+	int reloadHeights = RELOAD_NONE;
 
 	/**
 	 * All words height.
@@ -270,7 +295,13 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	 * Read results and compute their heights (only new).
 	 */
 	private void readWords() {
-		int height;
+		int height = 0;
+
+		if (reloadHeights == RELOAD) {
+			heights.removeAllElements();
+			wordsAllHeight = 0;
+			reloadHeights = RELOADED;
+		}
 
 		words = dictionary.getSearch().getResults();
 		originals = getOriginals(words);
@@ -323,7 +354,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 		g.setColor(0, 0, 0);
 
 		if (word.equals("-")) {
-			g.drawLine(0, position, (getWidth() - SCROLLBAR_WIDTH), position);
+			g.drawLine(0, position, (getWidth() - scrollbarWidth), position);
 			return;
 		}
 
@@ -338,7 +369,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 		}
 
 		heightLine = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM).getHeight();
-		widthLine = getWidth() - FLAG_WIDTH - SCROLLBAR_WIDTH - HORIZONTAL_SPACE - FLAG_MARGIN - WIDTH_MARGIN;
+		widthLine = getWidth() - FLAG_WIDTH - scrollbarWidth - HORIZONTAL_SPACE - FLAG_MARGIN - WIDTH_MARGIN;
 
 		g.drawImage(flag, HORIZONTAL_SPACE, position + ((heightLine - FLAG_HEIGHT) / 2) + 1, Graphics.LEFT | Graphics.TOP);
 
@@ -371,21 +402,25 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	 * @param g
 	 */
 	private void paintScrollbar(Graphics g) {
-		int maxHeight = formHeight - 2;
-		int scrollbarHeight = (int) (((float) formHeight / (float) wordsAllHeight) * maxHeight);
+		int scrollbarHeight = (int) (((float) formHeight / (float) wordsAllHeight) * formHeight);
 		int scrollbarPosition = (int) (((float) formHeight / (float) wordsAllHeight) * wordsPosition);
 
-		if (scrollbarHeight > maxHeight) {
-			scrollbarHeight = maxHeight;
+		if (scrollbarHeight > formHeight) {
+			return;
+		} else if (reloadHeights == RELOAD_NONE) {
+			scrollbarWidth = SCROLLBAR_WIDTH;
+			reloadHeights = RELOAD;
 		}
 		
-		if ((scrollbarPosition + scrollbarHeight) > maxHeight) {
-			scrollbarPosition = (maxHeight - scrollbarHeight);
+		if ((scrollbarPosition + scrollbarHeight) > formHeight) {
+			scrollbarPosition = (formHeight - scrollbarHeight);
 		}
 
-		g.setColor(0, 0, 0);
-		g.drawLine(getWidth() - SCROLLBAR_WIDTH, headerHeight, getWidth() - SCROLLBAR_WIDTH, getHeight() - footerHeight);
-		g.fillRect(getWidth() - SCROLLBAR_WIDTH + 2, headerHeight + 1 + scrollbarPosition, SCROLLBAR_WIDTH - 3, scrollbarHeight);
+		g.setColor(224, 224, 224);
+		g.fillRect(getWidth() - SCROLLBAR_WIDTH, headerHeight, getWidth(), getHeight() - headerHeight - footerHeight);
+
+		g.setColor(128, 128, 128);
+		g.fillRect(getWidth() - SCROLLBAR_WIDTH, headerHeight + scrollbarPosition, SCROLLBAR_WIDTH, scrollbarHeight + 1);
 	}
 
 	/**
@@ -403,7 +438,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 		int height = VERTICAL_SPACE;
 		
 		int heightLine = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM).getHeight();
-		int widthLine = getWidth() - FLAG_WIDTH - SCROLLBAR_WIDTH - HORIZONTAL_SPACE - FLAG_MARGIN - WIDTH_MARGIN;
+		int widthLine = getWidth() - FLAG_WIDTH - scrollbarWidth - HORIZONTAL_SPACE - FLAG_MARGIN - WIDTH_MARGIN;
 
 		if (Font.getFont(Font.FACE_PROPORTIONAL, original ? Font.STYLE_BOLD : Font.STYLE_PLAIN, Font.SIZE_MEDIUM).stringWidth(word) <= widthLine) {
 			height += heightLine;
@@ -459,6 +494,8 @@ public final class CanvasResults extends Canvas implements CommandListener {
 		originals = new boolean[0];
 		wordsAllHeight = 0;
 		wordsPosition = 0;
+		scrollbarWidth = 0;
+		reloadHeights = RELOAD_NONE;
 	}
 
 	/**

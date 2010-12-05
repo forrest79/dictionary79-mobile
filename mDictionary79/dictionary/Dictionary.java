@@ -73,6 +73,11 @@ public final class Dictionary extends MIDlet {
 	private boolean run = false;
 
 	/**
+	 * If results was show.
+	 */
+	private boolean hasResults = false;
+
+	/**
 	 * Start midlet and initilize.
 	 */
 	public void startApp() {
@@ -190,6 +195,7 @@ public final class Dictionary extends MIDlet {
 	 * Show result canvas.
 	 */
 	public void showResults() {
+		hasResults = true;
 		show(canvasResults);
 	}
 
@@ -262,6 +268,15 @@ public final class Dictionary extends MIDlet {
 	 */
 	public void stopSearch() {
 		canvasResults.stopSearch();
+	}
+
+	/**
+	 * Return true if search was made.
+	 * 
+	 * @return
+	 */
+	public boolean hasResults() {
+		return hasResults;
 	}
 
 	/**
