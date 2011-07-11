@@ -1,8 +1,8 @@
-mDictionary79 © Jakub Trmota, 2010 (http://forrest79.net)
+Dictionary79 - Mobile © Jakub Trmota, 2010 (http://forrest79.net)
 
 LICENSE
 =======
-mDictionary79 is distributed under GPL license. See license.txt.
+Dictionary79 - Mobile is distributed under GPL license. See license.txt.
 
 
 INTRODUCTION
@@ -16,7 +16,7 @@ REQUIREMENTS
 
 Mobile device compatible with J2ME.
 
-https://github.com/forrest79/mobiledictionary_web2cz
+https://github.com/forrest79/dictionary79-mobile
 
 
 SOURCE CODE
