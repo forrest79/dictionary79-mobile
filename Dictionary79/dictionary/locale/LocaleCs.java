@@ -17,10 +17,10 @@ public final class LocaleCs extends BaseLocale {
 		locales.put("Výsledky hledání", "Výsledky hledání");
 		locales.put("O slovníku", "O slovníku");
 		locales.put("Verze slovníku", "Verze slovníku");
-		locales.put("O slovníku: text", "Použijte šipky (nebo 2 - nahoru, 8 - dolu) pro posun v nalezených slovíčkách.\n\n1 - o stránku nahoru\n7 - o stránku dolu\n3 - úplně nahoru\n9 - úplně dolu");
+		locales.put("O slovníku: text", "Použijte šipky (nebo 2 - nahoru, 8 - dolu) pro posun v nalezených slovíčkách.\n\n1 - o stránku nahoru\n7 - o stránku dolu\n3 - úplně nahoru\n9 - úplně dolu\n\nSlovníková data pocházejí z GNU/FDL Anglicko - Českého slovníku (http://slovnik.zcu.cz/).");
 		locales.put("Jazyk", "Jazyk");
 		locales.put("česky", "česky");
-		locales.put("anglicky", "anglicky");
+		locales.put("anglicky", "english");
 		locales.put("Uložit", "Uložit");
 		locales.put("Slovíčko", "Slovíčko");
 		locales.put("Hledat slovíčko", "Hledat slovíčko");

@@ -1,6 +1,9 @@
 package dictionary;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Vector;
 import javax.microedition.lcdui.AlertType;
 
@@ -50,7 +53,7 @@ public final class Search {
 	private int resultsCount = 0;
 
 	/**
-	 * Translate direction..
+	 * Translate direction.
 	 */
 	private int direction;
 
@@ -71,7 +74,7 @@ public final class Search {
 
 	/**
 	 * Initialize search and read indexes.
-	 * 
+	 *
 	 * @param dictionary
 	 * @throws IOException
 	 */
@@ -86,7 +89,7 @@ public final class Search {
 
 	/**
 	 * Read indexes from file.
-	 * 
+	 *
 	 * @param file
 	 * @return
 	 * @throws IOException
@@ -109,7 +112,7 @@ public final class Search {
 
 	/**
 	 * Start searching.
-	 * 
+	 *
 	 * @param word
 	 * @param direction
 	 */
@@ -127,7 +130,7 @@ public final class Search {
 
 	/**
 	 * Return results as string array.
-	 * 
+	 *
 	 * @return
 	 */
 	public String[] getResults() {
@@ -142,7 +145,7 @@ public final class Search {
 
 	/**
 	 * Return results count.
-	 * 
+	 *
 	 * @return
 	 */
 	public int getResultsCount() {
@@ -181,6 +184,8 @@ public final class Search {
 
 	/**
 	 * Dictionary search algorithm.
+	 *
+	 * @author Jakub Trmota | Forrest79
 	 */
 	private class DictionarySearch extends Thread {
 		/**
@@ -205,7 +210,7 @@ public final class Search {
 
 		/**
 		 * Initialize algorithm and find first index file.
-		 * 
+		 *
 		 * @param searchWord
 		 * @param direction
 		 */
@@ -223,7 +228,7 @@ public final class Search {
 
 		/**
 		 * Find index.
-		 * 
+		 *
 		 * @param indexes
 		 * @param word
 		 * @return
@@ -259,7 +264,7 @@ public final class Search {
 
 		/**
 		 * Search algorithm.
-		 * 
+		 *
 		 * @throws IOException
 		 */
 		private void search() throws IOException {
@@ -274,8 +279,6 @@ public final class Search {
 				if (dataFile != null) {
 					DataInputStream reader = new DataInputStream(dataFile);
 
-					String word = "";
-
 					while(true) {
 						if (resultsCount == MAX_RESULTS) {
 							cancel = true;
@@ -286,7 +289,7 @@ public final class Search {
 						}
 
 						try {
-							word = reader.readUTF();
+							String word = reader.readUTF();
 
 							if (lowerCase(word).startsWith(this.searchWord)) {
 								String[] words = split(word, ":");
@@ -313,7 +316,7 @@ public final class Search {
 
 		/**
 		 * Lower case string with czech chars.
-		 * 
+		 *
 		 * @param str
 		 * @return
 		 */
@@ -354,7 +357,7 @@ public final class Search {
 
 		/**
 		 * Java string split in J2ME.
-		 * 
+		 *
 		 * @param original
 		 * @param separator
 		 * @return
@@ -383,13 +386,15 @@ public final class Search {
 
 	/**
 	 * Class for indexes.
+ 	 *
+	 * @author Jakub Trmota | Forrest79
 	 */
 	private final class Index {
 		/**
 		 * Word.
 		 */
 		private String word = "";
-		
+
 		/**
 		 * And it's index.
 		 */
@@ -397,7 +402,7 @@ public final class Search {
 
 		/**
 		 * Index initialization.
-		 * 
+		 *
 		 * @param word
 		 * @param index
 		 */
@@ -408,7 +413,7 @@ public final class Search {
 
 		/**
 		 * Get file index.
-		 * 
+		 *
 		 * @return
 		 */
 		public short getIndex() {
@@ -417,7 +422,7 @@ public final class Search {
 
 		/**
 		 * Get word.
-		 * 
+		 *
 		 * @return
 		 */
 		public String getWord() {

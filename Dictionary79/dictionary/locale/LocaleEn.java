@@ -17,9 +17,9 @@ public final class LocaleEn extends BaseLocale {
 		locales.put("Výsledky hledání", "Results");
 		locales.put("O slovníku", "About dictionary");
 		locales.put("Verze slovníku", "Dictionary version");
-		locales.put("O slovníku: text", "Use arrows keys (or 2 - up, 8 - down) for moving in results.\n\n1 - page up\n7 - page down\n3 - home\n9 - end");
+		locales.put("O slovníku: text", "Use arrows keys (or 2 - up, 8 - down) for moving in results.\n\n1 - page up\n7 - page down\n3 - home\n9 - end\n\nDictionary data come from GNU/FDL Anglicko - Český slovník (http://slovnik.zcu.cz/).");
 		locales.put("Jazyk", "Lang");
-		locales.put("česky", "czech");
+		locales.put("česky", "česky");
 		locales.put("anglicky", "english");
 		locales.put("Uložit", "Save");
 		locales.put("Slovíčko", "Word");

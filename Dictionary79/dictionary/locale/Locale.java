@@ -1,6 +1,8 @@
 package dictionary.locale;
 
-import javax.microedition.rms.*;
+import javax.microedition.rms.RecordStore;
+import javax.microedition.rms.RecordStoreException;
+import javax.microedition.rms.RecordStoreNotOpenException;
 
 /**
  * Locale class.
@@ -60,14 +62,14 @@ public final class Locale {
 		}
 
 		byte[] byteLang = new byte[records.getRecordSize(LANG_RECORD_ID)];
-		records.getRecord(1, byteLang, 0);
+		records.getRecord(LANG_RECORD_ID, byteLang, 0);
 
 		setLocale(new String(byteLang));
 	}
 
 	/**
 	 * Translate word.
-	 * 
+	 *
 	 * @param word
 	 * @return
 	 */
@@ -87,7 +89,7 @@ public final class Locale {
 
 	/**
 	 * Set locale.
-	 * 
+	 *
 	 * @param locale
 	 * @return true if locale is changed
 	 */
@@ -110,6 +112,24 @@ public final class Locale {
 	}
 
 	/**
+	 * Get locale.
+	 *
+	 * @return locale id
+	 */
+	public String getLocale() {
+		return localeId;
+	}
+
+	/**
+	 * Indicate first run of application.
+	 *
+	 * @return
+	 */
+	public boolean isFirstRun() {
+		return firstRun;
+	}
+
+	/**
 	 * Open records.
 	 *
 	 * @throws RecordStoreException
@@ -126,23 +146,5 @@ public final class Locale {
 	 */
 	public void closeRecords() throws RecordStoreNotOpenException, RecordStoreException {
 		records.closeRecordStore();
-	}
-
-	/**
-	 * Get locale.
-	 *
-	 * @return locale id
-	 */
-	public String getLocale() {
-		return localeId;
-	}
-
-	/**
-	 * Indicate first run of application.
-	 *
-	 * @return
-	 */
-	public boolean firstRun() {
-		return firstRun;
 	}
 }

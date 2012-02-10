@@ -32,12 +32,12 @@ public final class FormLang extends Form implements CommandListener {
 
 	/**
 	 * Initialize form lang.
-	 * 
+	 *
 	 * @param dictionary
 	 */
 	public FormLang(Dictionary dictionary) {
-		super(dictionary.translate("Jazyk"));
-		
+		super("");
+
 		this.dictionary = dictionary;
 
 		initialize();
@@ -47,6 +47,8 @@ public final class FormLang extends Form implements CommandListener {
 	 * Initialize components.
 	 */
 	public void initialize() {
+		setTitle(dictionary.translate("Jazyk"));
+
 		chgLang = new ChoiceGroup(dictionary.translate("Jazyk") + ":", Choice.EXCLUSIVE);
 		chgLang.append(dictionary.translate("česky"), null);
 		chgLang.append(dictionary.translate("anglicky"), null);
@@ -63,6 +65,7 @@ public final class FormLang extends Form implements CommandListener {
 	 */
 	public void reinitialize() {
 		deleteAll();
+
 		removeCommand(cmdSave);
 		removeCommand(cmdBack);
 
@@ -71,7 +74,7 @@ public final class FormLang extends Form implements CommandListener {
 
 	/**
 	 * Action listener.
-	 * 
+	 *
 	 * @param c
 	 * @param d
 	 */
@@ -86,7 +89,7 @@ public final class FormLang extends Form implements CommandListener {
 
 	/**
 	 * Set lang choice.
-	 * 
+	 *
 	 * @param lang
 	 */
 	public void setLangChoice(String lang) {
@@ -99,7 +102,7 @@ public final class FormLang extends Form implements CommandListener {
 
 	/**
 	 * Get lang id.
-	 * 
+	 *
 	 * @return lang id
 	 */
 	private String getLangChoice() {

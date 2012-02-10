@@ -3,7 +3,9 @@ package dictionary.animation;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
-import javax.microedition.lcdui.*;
+import javax.microedition.lcdui.Canvas;
+import javax.microedition.lcdui.Graphics;
+import javax.microedition.lcdui.Image;
 
 /**
  * Working animation.
@@ -56,6 +58,9 @@ public final class Working {
 	 */
 	private int frame = 0;
 
+	/**
+	 * Animation thread.
+	 */
 	private Animation animation = null;
 
 	/**
@@ -114,7 +119,7 @@ public final class Working {
 
 	/**
 	 * Return if animation is running.
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isRunning() {
@@ -123,14 +128,22 @@ public final class Working {
 
 	/**
 	 * Draw animation to canvas.
-	 * 
+	 *
 	 * @param g
 	 */
 	public void draw(Graphics g) {
 		g.drawImage(working[frame], x, y, Graphics.LEFT | Graphics.TOP);
 	}
 
+	/**
+	* Animation thread class.
+	*
+	* @author Jakub Trmota | Forrest79
+	*/
 	private final class Animation extends TimerTask {
+		/**
+		 * Main thread function.
+		 */
 		public void run() {
 			canvas.repaint();
 			frame++;

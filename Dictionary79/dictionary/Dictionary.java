@@ -2,20 +2,20 @@ package dictionary;
 
 import dictionary.display.*;
 import dictionary.locale.Locale;
-import javax.microedition.midlet.*;
 import javax.microedition.lcdui.*;
+import javax.microedition.midlet.MIDlet;
 import javax.microedition.rms.RecordStoreException;
 
 /**
  * Dictionary midlet.
- * 
+ *
  * @author Jakub Trmota | Forrest79
  */
 public final class Dictionary extends MIDlet {
 	/**
 	 * Version.
 	 */
-	public static final String VERSION = "2.0.0";
+	public static final String VERSION = "2.1.0";
 
 	/**
 	 * Locale class.
@@ -103,7 +103,7 @@ public final class Dictionary extends MIDlet {
 
 				run = true;
 
-				if (locale.firstRun()) {
+				if (locale.isFirstRun()) {
 					show(formLang);
 				} else {
 					show(formSearch);
@@ -133,7 +133,7 @@ public final class Dictionary extends MIDlet {
 
 	/**
 	 * Exit midlet.
-	 * 
+	 *
 	 * @param unconditional
 	 */
 	public void destroyApp(boolean unconditional) {
@@ -142,13 +142,13 @@ public final class Dictionary extends MIDlet {
 		} catch(Exception e) {
 			System.err.print(e);
 		}
-		
+
 		notifyDestroyed();
 	}
 
 	/**
 	 * Show form or canvas.
-	 * 
+	 *
 	 * @param displayable
 	 */
 	private void show(Displayable displayable) {
@@ -222,7 +222,7 @@ public final class Dictionary extends MIDlet {
 
 	/**
 	 * Set new locale.
-	 * 
+	 *
 	 * @param locale
 	 */
 	public void setLocale(String locale) {
@@ -242,7 +242,7 @@ public final class Dictionary extends MIDlet {
 
 	/**
 	 * Get search class.
-	 * 
+	 *
 	 * @return
 	 */
 	public Search getSearch() {
@@ -272,7 +272,7 @@ public final class Dictionary extends MIDlet {
 
 	/**
 	 * Return true if search was made.
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean hasResults() {
@@ -281,7 +281,7 @@ public final class Dictionary extends MIDlet {
 
 	/**
 	 * Translate word in locale.
-	 * 
+	 *
 	 * @param word
 	 * @return
 	 */

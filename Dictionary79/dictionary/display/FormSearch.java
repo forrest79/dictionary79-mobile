@@ -51,11 +51,11 @@ public final class FormSearch extends Form implements CommandListener {
 
 	/**
 	 * Form search initialization.
-	 * 
+	 *
 	 * @param dictionary
 	 */
 	public FormSearch(Dictionary dictionary) {
-		super(dictionary.translate("Hledat slovíčko"));
+		super("");
 
 		this.dictionary = dictionary;
 
@@ -66,6 +66,8 @@ public final class FormSearch extends Form implements CommandListener {
 	 * Initialize components.
 	 */
 	public void initialize() {
+		setTitle(dictionary.translate("Hledat slovíčko"));
+
 		txtWord = new TextField(dictionary.translate("Slovíčko") + ":", "", 50, TextField.ANY);
 		chgDirection = new ChoiceGroup(dictionary.translate("Směr překladu") + ":", Choice.EXCLUSIVE);
 		chgDirection.append(dictionary.translate("z angličtiny do češtiny"), null);
@@ -92,6 +94,7 @@ public final class FormSearch extends Form implements CommandListener {
 	 */
 	public void reinitialize() {
 		deleteAll();
+
 		removeCommand(cmdSearch);
 		removeCommand(cmdResults);
 		removeCommand(cmdLang);
@@ -103,7 +106,7 @@ public final class FormSearch extends Form implements CommandListener {
 
 	/**
 	 * Action listener.
-	 * 
+	 *
 	 * @param c
 	 * @param d
 	 */

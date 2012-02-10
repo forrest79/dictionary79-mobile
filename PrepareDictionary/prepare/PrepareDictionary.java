@@ -1,15 +1,7 @@
 package prepare;
 
 import java.io.*;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Prepare dicrionary and store output in data directory.
@@ -73,7 +65,7 @@ class PrepareDictionary {
 
 	/**
 	 * Initialize class.
-	 * 
+	 *
 	 * @param dictionaryFile
 	 * @param lang1
 	 * @param lang2
@@ -118,20 +110,19 @@ class PrepareDictionary {
 
 	/**
 	 * Read from dictionary file and save to maps.
-	 * 
+	 *
 	 * @param dictionaryFile
 	 * @param map1
 	 * @param map2
 	 */
 	private void readDictionary(String dictionaryFile, SortedMap<String, Translate> map1, SortedMap<String, Translate> map2) {
-		// Read translations to map for sorting
-		Scanner dictionaryScanner = null;
+		Scanner dictionaryScanner = null; // Read translations to map for sorting
+
 		try {
 			dictionaryScanner = new Scanner(new FileInputStream(dictionaryFile), INPUT_ENCODING);
 
-			String line = "";
 			while (dictionaryScanner.hasNextLine()){
-				line = dictionaryScanner.nextLine().trim();
+				String line = dictionaryScanner.nextLine().trim();
 
 				if (line.startsWith("#")) {
 					continue;
@@ -171,13 +162,14 @@ class PrepareDictionary {
 
 	/**
 	 * Write text file.
-	 * 
+	 *
 	 * @param map
 	 * @param lang
 	 * @throws IOException
 	 */
 	public void writeText(SortedMap<String, Translate> map, String lang) throws IOException {
 		OutputStreamWriter writer = null;
+
 		try {
 			writer = new OutputStreamWriter(new FileOutputStream("data" + DIRECTORY_SEPARATOR + lang + ".txt"), OUTPUT_ENCODING);
 
@@ -198,13 +190,14 @@ class PrepareDictionary {
 
 	/**
 	 * Write data file.
-	 * 
+	 *
 	 * @param map
 	 * @param lang
 	 * @throws IOException
 	 */
 	public void writeData(SortedMap<String, Translate> map, String lang) throws IOException {
 		DataOutputStream index = null;
+
 		try {
 			index = new DataOutputStream(new FileOutputStream("data" + DIRECTORY_SEPARATOR + lang + ".index"));
 
@@ -289,7 +282,7 @@ class Translate {
 
 	/**
 	 * Add translate word.
-	 * 
+	 *
 	 * @param translate
 	 */
 	public void add(String translate) {
@@ -298,7 +291,7 @@ class Translate {
 
 	/**
 	 * Return translates as string separated with WORD_SEPARATOR.
-	 * 
+	 *
 	 * @return translates
 	 */
 	public String getTranslates() {

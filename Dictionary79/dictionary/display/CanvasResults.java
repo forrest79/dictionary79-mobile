@@ -4,10 +4,10 @@ import dictionary.Dictionary;
 import dictionary.Search;
 import dictionary.animation.Working;
 import java.io.IOException;
-import javax.microedition.lcdui.*;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
+import javax.microedition.lcdui.*;
 
 /**
  * Canvas with results.
@@ -187,7 +187,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 
 	/**
 	 * Result canvas initialization.
-	 * 
+	 *
 	 * @param midlet
 	 * @throws IOException
 	 */
@@ -249,7 +249,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	 */
 	protected void paint(Graphics g) {
 		readWords();
-		
+
 		paintWords(g);
 
 		paintHeader(g);
@@ -261,7 +261,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 
 	/**
 	 * Paint header with working animation.
-	 * 
+	 *
 	 * @param g
 	 */
 	private void paintHeader(Graphics g) {
@@ -279,7 +279,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 
 	/**
 	 * Paint footer with count of results.
-	 * 
+	 *
 	 * @param g
 	 */
 	private void paintFooter(Graphics g) {
@@ -295,8 +295,6 @@ public final class CanvasResults extends Canvas implements CommandListener {
 	 * Read results and compute their heights (only new).
 	 */
 	private void readWords() {
-		int height = 0;
-
 		if (reloadHeights == RELOAD) {
 			heights.removeAllElements();
 			wordsAllHeight = 0;
@@ -307,7 +305,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 		originals = getOriginals(words);
 
 		for (int i = heights.size(); i < words.length; i++) {
-			height = getWordHeight(words[i], originals[i]);
+			int height = getWordHeight(words[i], originals[i]);
 
 			heights.addElement(new Integer(height));
 			wordsAllHeight += height;
@@ -316,18 +314,17 @@ public final class CanvasResults extends Canvas implements CommandListener {
 
 	/**
 	 * Paint all words.
-	 * 
+	 *
 	 * @param g
 	 */
 	private void paintWords(Graphics g) {
 		int allHeight = 0;
-		int actualHeight = 0;
 
 		g.setColor(255, 255, 255);
 		g.fillRect(0, headerHeight, getWidth(), (getHeight() - footerHeight));
 
 		for (int i = 0; i < words.length - 1; i++) {
-			actualHeight = ((Integer) (heights.elementAt(i))).intValue();
+			int actualHeight = ((Integer) (heights.elementAt(i))).intValue();
 
 			if ((((allHeight + actualHeight) >= wordsPosition) && ((allHeight + actualHeight) <= (wordsPosition + formHeight)))
 					|| ((allHeight >= wordsPosition) && ((allHeight + actualHeight) <= (wordsPosition + formHeight)))
@@ -342,7 +339,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 
 	/**
 	 * Print one word.
-	 * 
+	 *
 	 * @param g
 	 * @param position position on canvas
 	 * @param word word
@@ -358,7 +355,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 			return;
 		}
 
-		Image flag = null;
+		Image flag;
 		int heightLine;
 		int widthLine;
 
@@ -380,7 +377,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 		} else {
 			int lineChar = 0;
 
-			int i = 0;
+			int i;
 			for (i = 0; i < word.length(); i++) {
 				if (Font.getFont(Font.FACE_PROPORTIONAL, original ? Font.STYLE_BOLD : Font.STYLE_PLAIN, Font.SIZE_MEDIUM).substringWidth(word, lineChar, (i - lineChar)) <= widthLine) {
 					continue;
@@ -398,7 +395,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 
 	/**
 	 * Paint scrollbar.
-	 * 
+	 *
 	 * @param g
 	 */
 	private void paintScrollbar(Graphics g) {
@@ -411,7 +408,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 			scrollbarWidth = SCROLLBAR_WIDTH;
 			reloadHeights = RELOAD;
 		}
-		
+
 		if ((scrollbarPosition + scrollbarHeight) > formHeight) {
 			scrollbarPosition = (formHeight - scrollbarHeight);
 		}
@@ -425,7 +422,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 
 	/**
 	 * Get word height.
-	 * 
+	 *
 	 * @param word
 	 * @param original is original word
 	 * @return height
@@ -436,7 +433,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 		}
 
 		int height = VERTICAL_SPACE;
-		
+
 		int heightLine = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM).getHeight();
 		int widthLine = getWidth() - FLAG_WIDTH - scrollbarWidth - HORIZONTAL_SPACE - FLAG_MARGIN - WIDTH_MARGIN;
 
@@ -462,7 +459,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 
 	/**
 	 * Set which word is original.
-	 * 
+	 *
 	 * @param words array with words
 	 * @return array where original word is true
 	 */
@@ -507,7 +504,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 
 	/**
 	 * Key pressed.
-	 * 
+	 *
 	 * @param key
 	 */
 	protected void keyPressed(int key) {
@@ -529,7 +526,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 					timerKey.schedule(downKey, 0, 50);
 					downKeyRunning = true;
 				}
-			}		
+			}
 		} else if ((keyCode == Canvas.UP) || (key == Canvas.KEY_NUM2)) {
 			if (wordsAllHeight <= formHeight) {
 				return;
@@ -546,7 +543,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 					timerKey.schedule(upKey, 0, 50);
 					upKeyRunning = true;
 				}
-			}		
+			}
 		} else if (key == Canvas.KEY_NUM7) {
 			if (wordsAllHeight <= formHeight) {
 				return;
@@ -578,13 +575,13 @@ public final class CanvasResults extends Canvas implements CommandListener {
 
 			wordsPosition = 0;
 		}
-		
+
 		repaint();
 	}
 
 	/**
 	 * Key release (only stop key timer).
-	 * 
+	 *
 	 * @param key
 	 */
 	protected void keyReleased(int key) {
@@ -607,7 +604,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 
 	/**
 	 * Action listener.
-	 * 
+	 *
 	 * @param c
 	 * @param d
 	 */
@@ -637,7 +634,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 			} else {
 				wordsPosition = wordsPosition + SCROLL_STEP;
 			}
-			
+
 			repaint();
 		}
 	}
@@ -656,7 +653,7 @@ public final class CanvasResults extends Canvas implements CommandListener {
 			} else {
 				wordsPosition = wordsPosition - SCROLL_STEP;
 			}
-			
+
 			repaint();
 		}
 	}
