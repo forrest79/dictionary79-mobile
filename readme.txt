@@ -1,5 +1,9 @@
 Dictionary79 - Mobile © Jakub Trmota, 2010 (http://forrest79.net)
 
+
+English - Czech dictionary for mobile phones (J2ME).
+
+
 LICENSE
 =======
 Dictionary79 - Mobile is distributed under GPL license. See license.txt.
