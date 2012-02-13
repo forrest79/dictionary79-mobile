@@ -13,8 +13,6 @@ REQUIREMENTS
 ============
 Mobile device compatible with J2ME.
 
-https://github.com/forrest79/dictionary79-mobile
-
 
 SOURCE CODE
 ===========
@@ -25,3 +23,6 @@ car	auto
 bus	autobus
 
 Create "data" subfolder and than copy all *.index and *.dat files to J2ME /data directory.
+
+
+https://github.com/forrest79/dictionary79-mobile
