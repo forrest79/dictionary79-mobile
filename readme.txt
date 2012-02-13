@@ -6,12 +6,7 @@ English - Czech dictionary for mobile phones (J2ME).
 
 LICENSE
 =======
-Dictionary79 - Mobile is distributed under GPL license. See license.txt.
-
-
-INTRODUCTION
-============
-The files in this archive are released under the BSD license (license.txt).
+Dictionary79 - Mobile is distributed under BSD license. See license.txt.
 
 
 REQUIREMENTS
